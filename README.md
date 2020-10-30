@@ -1,11 +1,12 @@
 # react_sound_code
-React源码学习
 
-##说明
+## React源码学习
+
+## 说明
 本项目用于调试源码，即修改配置使得项目中引用的 react 包来自 src/react，使得我们可以在 src/react 下 debug 和打 log 调试。
 这是书写此项目每一个源码案例之前的步骤, 当然你也可以不用做, 直接使用 create-react-app, 更改 React.render 和 ReactDOM 为此项目的的 React.render 和 ReactDOM 即可。
 
-##使用步骤
+## 使用步骤
 
 1. 在根目录下安装： npm install
 2. 解压 src 下的 react（v17.0.0） 压缩包，源码中有些配置需要修改，压缩包里我已经修改完，你只需要直接解压即可。（如果是自己从 github 上 clone 下来的 react 项目，请按照下面五条配置项进行修改）
