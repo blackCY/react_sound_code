@@ -4,7 +4,7 @@
 
 ## 说明
 本项目用于调试源码，即修改配置使得项目中引用的 react 包来自 src/react，使得我们可以在 src/react 下 debug 和打 log 调试。
-这是书写此项目每一个源码案例之前的步骤, 当然你也可以不用做, 直接使用 create-react-app, 更改 render 和 createElement 为此项目的的 render 和 createElement 即可, 详细步骤请阅读项目。
+书写这里面的案例之前请先按照这文档搭建一次环境。
 
 ## 使用步骤
 
