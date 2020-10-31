@@ -1,5 +1,12 @@
 // STEP 2 将创建好的虚拟对象使用 render 传入执行, 将其渲染
 function render(vnode, container) {
+  // * 将 vnode 转换为 node
+  // const node = createNode(vnode, container);
+
+  // * 将转换好的 node 添加到到 container 容器节点
+  // * 这里需要判断, 如果 node 是 null, 即当前节点是 Fragment, 则不用添加
+  // node && container.appendChild(node);
+
   // * root fiber
   wipRoot = {
     stateNode: container,
@@ -109,7 +116,7 @@ let nextUnitOfWork = null;
 // * 正在工作中的 fiber root, 即 root 根节点
 let wipRoot = null;
 
-// * 新的子节点协调函数
+// 
 function reconcileChildren(workInProgress, children) {
   let previousNewFiber = null;
   // * workInProgress 是父节点
