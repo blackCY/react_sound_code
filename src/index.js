@@ -41,11 +41,11 @@ const jsx = (
     </h1>
     <p>node - 1</p>
     <a href="https://www.kaikeba.com/">node - 2</a>
-    <FunctionComponent name="函数组件" />
-    <ul>
+    {/* <FunctionComponent name="函数组件" /> */}
+    {/* <ul>
       <NNode />
-    </ul>
-    <ClassComponent name="class component" />
+    </ul> */}
+    {/* <ClassComponent name="class component" /> */}
   </div>
 );
 
