@@ -12,6 +12,23 @@ const updateValue = (e) => {
 const container = document.getElementById("root");
 
 const rerender = (value) => {
+  // 函数组件
+  const App = (props) => {
+    // ! 为函数组件添加状态
+    const [state, setState] = ReactDOM.useState(1);
+    const [count, setCount] = ReactDOM.useState("222");
+
+    return (
+      <h1 className="fun">
+        Hi {props.name}
+        <h2>Count: {state}</h2>
+        <button onClick={() => setState((c) => c + 1)}>点击</button>
+        <span>{count}</span>
+        <button onClick={() => setCount(111)}>点击</button>
+      </h1>
+    );
+  };
+
   const element = (
     <div>
       <input onInput={updateValue} value={value} />
@@ -23,8 +40,10 @@ const rerender = (value) => {
       </h1>
       <p>node - 1</p>
       <a href="https://www.kaikeba.com/">node - 2</a>
+      <App name="App" />
     </div>
   );
+
   ReactDOM.render(element, container);
 };
 
