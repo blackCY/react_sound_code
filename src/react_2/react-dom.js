@@ -1,24 +1,26 @@
 // * 将创建好的 vnode 传入 render 函数将其添加到 node
 function render(element, container) {
-  // * 将创建 DOM 节点的部分保留在其自身的功能中, 这是因为当开始渲染我们就要初始化 root fiber
-  wipRoot = {
+  // * 将创建 DOM 节点的部分保留在其自身的功能中, 这是因为当开始渲染我们就要初始化 root fiber, 即下面的 nextUnitOfWork = workInProgressFiber;
+  workInProgressFiber = {
     dom: container,
     props: {
       children: [element],
     },
-    // ! 旧 fiber, 是上一次提交阶段提交给 dom 的 fiber
-    alternate: currentRoot,
+    // ! 这里初始化当前屏幕上显示的内容对应的 Fiber 树
+    alternate: currentFiber,
   };
   deletions = [];
-  nextUnitOfWork = wipRoot;
+  nextUnitOfWork = workInProgressFiber;
 }
 
 // * 马上要执行的一个工作单元
 let nextUnitOfWork = null;
-// * 进行中的(work in progress) root
-let wipRoot = null;
-// ! 提交给 dom 的最后一个 fiber 的引用
-let currentRoot = null;
+// * 进行中的(work in progress) fiber
+// ! React 应用的根节点通过 current 指针在不同 Fiber 树的 rootFiber 间切换来实现 Fiber 树的切换, 这两棵树通过 alternate 属性连接
+// ! 这是双缓存 Fiber 树中正在内存中构建的 Fiber 树
+let workInProgressFiber = null;
+// ! 这是双缓存 Fiber 树中的当前屏幕上显示内容对应的 Fiber 树
+let currentFiber = null;
 // ! 跟踪删除的节点, 将其推入数组中
 let deletions = null;
 
@@ -93,6 +95,7 @@ function reconcileChildren(wipFiber, elements) {
     if (sameType) {
       // * update the node
       newFiber = {
+        // ! 这里在 mount 和 update 时, workInProgress Fiber 的创建可以复用 current Fiber 树对应节点的数据
         type: oldFiber.type,
         props: element.props,
         dom: oldFiber.dom,
@@ -123,7 +126,7 @@ function reconcileChildren(wipFiber, elements) {
       deletions.push(oldFiber);
     }
 
-    // ! 由于将 fiber 提交给 DOM 时, 我们是从正在进行的 work in progress of root, 即 wipRoot 开始的,该 root 没有 oldFiber, 所以我们要进行判断
+    // ! 由于将 fiber 提交给 DOM 时, 我们是从正在进行的 work in progress of root, 即 workInProgressFiber 开始的,该 root 没有 oldFiber, 所以我们要进行判断
     // ! 每一次进到这里来是替换当前 oldFiber, 将 oldFiber 赋值给当前 element 的下一个兄弟节点
     if (oldFiber) {
       oldFiber = oldFiber.sibling;
@@ -149,7 +152,7 @@ function workLoop(deadline) {
     shouldYield = deadline.timeRemaining() < 1;
   }
 
-  if (!nextUnitOfWork && wipRoot) {
+  if (!nextUnitOfWork && workInProgressFiber) {
     commitRoot();
   }
 
@@ -162,10 +165,12 @@ requestIdleCallback(workLoop);
 function commitRoot() {
   // ? 然后, 当我们将更改提交给 DOM 时, 我们还使用该阵列中的 fiber
   deletions.forEach(commitWork);
-  commitWork(wipRoot.child);
-  // ! 上一次提交的整个(根) fiber 树, 即旧的 fiber
-  currentRoot = wipRoot;
-  wipRoot = null;
+  commitWork(workInProgressFiber.child);
+  // ! 当 workInProgressFiber 树在内存中构建完成, 则 React 应用的根节点通过 current 指针切换为 currentFiber 树
+  // ! 当 workInProgress Fiber 树构建完成交给 Renderer 渲染在页面后, 应用根节点的 current 指针指向 workInProgress Fiber 树, 此时 workInProgress Fiber 树就变为 current Fiber 树
+  // ! 每次状态更新都会产生新的 workInProgress Fiber 树, 通过 current 与 workInProgress 的替换, 完成 DOM 的更新
+  currentFiber = workInProgressFiber;
+  workInProgressFiber = null;
 }
 
 function commitDeletion(fiber, domParent) {
@@ -258,14 +263,14 @@ function useState(initial) {
 
   const setState = (action) => {
     hook.queue.push(action);
-    // ! 更新 wipRoot, nextUnitOfWork 以及将 deletions置为空数组
+    // ! 更新 workInProgressFiber, nextUnitOfWork 以及将 deletions置为空数组
     // ! 以便工作循环可以进入新的渲染阶段
-    wipRoot = {
-      dom: currentRoot.dom,
-      props: currentRoot.props,
-      alternate: currentRoot,
+    workInProgressFiber = {
+      dom: currentFiber.dom,
+      props: currentFiber.props,
+      alternate: currentFiber,
     };
-    nextUnitOfWork = wipRoot;
+    nextUnitOfWork = workInProgressFiber;
     deletions = [];
   };
 
